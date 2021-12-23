@@ -1,0 +1,20 @@
+
+scheduler.frequency.inseconds: "60"
+scheduler.start.delay.inseconds: "20"
+
+file-conn:
+  reconnection.frequency: "30000"
+  reconnection.attempts: "3"
+
+file:
+  pattern: "*.csv"
+  
+local:
+  workingdir: "/Users/aacevedo/Documents/development/sources/tmp/"
+  input: "in/"
+  output: "out/"
+  reconnection.frequency: "2500"
+  reconnection.attempts: "2"  
+
+app:
+  flow.max.concurrency: "1"

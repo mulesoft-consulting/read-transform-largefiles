@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="comm-mgmt-prc-app:\line-notification-schedule:flow" doc:id="16275579-4773-4fda-a190-27c34321c700" >
+		<file:listener doc:name="Read File Any New or Updated File" doc:id="6153dca4-a5bf-4dc2-aaa5-deedbaaa557c" config-ref="File_Config_local" directory="${local.input}" recursive="false" autoDelete="true">
+			<ee:repeatable-file-store-stream inMemorySize="2048" />
+			
+			<scheduling-strategy >
+				<fixed-frequency frequency="10000"/>
+			</scheduling-strategy>
+			<file:matcher filenamePattern="${file.pattern}" />
+		</file:listener>
+		<flow-ref doc:name="impl-common:\set-correlation-id" doc:id="0b2324d4-38c0-4381-a6d7-d05b6616140a" name="impl-common:\set-correlation-id" />
+		<flow-ref doc:name="impl-comm-mgmt-prc-api:\process-line-file:flow" doc:id="9b4672ac-250b-48e0-9fe1-24aa63270a27" name="impl-comm-mgmt-prc-api:\process-line-file:flow" />
+	</flow>
+</mule>

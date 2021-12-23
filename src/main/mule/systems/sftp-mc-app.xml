@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="sftp-mc-app:\move-file:sub" doc:id="a96520b8-a87e-4aca-820a-8fb080d40dfd" >
+		<logger level="DEBUG" doc:name="DEBUG :: Log Request" doc:id="485b5aa7-708c-4c32-b0a3-42bf0d25d0dc" message="#[vars.correlationId] | Move Notification File | destinationPath: #[vars.destinationPath]" category="${app.name}.debug" />
+		<file:move doc:name="Move" doc:id="21598f0b-dc1b-41ce-98b2-4378a41597b9" sourcePath="#[vars.sourcePath]" config-ref="File_Config_local" targetPath="#[vars.destinationPath]" overwrite="true" createParentDirectories="false">
+			<reconnect frequency="${file-conn.reconnection.frequency}" count="${file-conn.reconnection.attempts}" />
+		</file:move>
+		<logger level="DEBUG" doc:name="DEBUG :: Log Response" doc:id="830949f9-ebb3-48a0-91cc-496663cadada" message="#[vars.correlationId] |  Move to Destination Complete |  destinationPath: #[vars.destinationPath]" category="${app.name}.debug" />
+	</sub-flow> 
+   <sub-flow name="sftp-mc-app:\write-file:sub" doc:id="2e7b0dc4-3f4c-49f3-bfa6-bbb6fb6d01ab" >
+<!-- 		<logger level="INFO" doc:name="DEBUG :: Log Request" doc:id="72fe2b57-d914-4f6f-9f91-1a967314d57c" message="#[vars.correlationId] | Write Line File | filePath: #[vars.destinationPath]" category="${app.name}.debug" /> -->
+ 		<logger level="INFO" doc:name="Logger" doc:id="173da562-4190-4f2a-9b56-30711b59f30a" message="*** About to transform large file"/>
+		<ee:transform doc:name="Transform Message as Iterator" doc:id="1169e87c-c87c-4bdf-ad3f-169264e9f5ad">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json deferred=true
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="c9f78fc1-5d8f-4788-b9a5-e3dda98d6cae" path="#[%dw 2.0 output application/java --- vars.destinationPath]" config-ref="File_Config_local"/>
+		<logger level="INFO" doc:name="DEBUG :: Log Response" doc:id="5a1a897d-0388-42c8-a6d3-3e389cf077d8" message="#[vars.correlationId] | Write Complete for Line | filePath: #[vars.destinationPath]" category="${app.name}.debug" />
+	</sub-flow>
+</mule>

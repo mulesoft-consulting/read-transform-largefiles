@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	<flow name="impl-comm-mgmt-prc-api:\process-line-file:flow" doc:id="251537cf-7e62-4a86-b87c-86936eb1e250">
+	<logger level="INFO" doc:name="Flow Start" doc:id="b04269df-53dd-442b-a985-8e96a2de0826" message="#[%dw 2.0 output application/java 
+fun getCurrentDate() =  now() as String {format: &quot;dd/MM/yyyy hhss&quot; } 
+--- 
+getCurrentDate() default '' ++ &quot; | &quot; ++  
+app.name default '' ++ &quot; | &quot; ++ 
+vars.logging.eventType default '' ++ &quot; | &quot; ++ 
+vars.logging.source.address default '' ++ &quot; | &quot; ++ 
+vars.logging.source.userid default '' ++ &quot; | &quot; ++   
+vars.logging.destination.address ++ &quot; | &quot; ++   
+vars.logging.destination.userid default '' ++ &quot; | &quot; ++
+'Flow Start'  ++ ' fileName: '  ++ vars.fileName  default &quot;&quot;]" category="${app.name}" />
+		<ee:transform doc:name="Set Logging Info; fileName" doc:id="54c19813-b540-4da7-9652-9cf2e6adadcc">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="fileName"><![CDATA[%dw 2.0
+output application/java
+---
+attributes.fileName]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+
+<ee:transform doc:name="Set source source and destination path." doc:id="cdfe3694-567a-4c95-bcdb-47c6d48bc5ea">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="sourcePath" ><![CDATA[%dw 2.0
+output application/java
+---
+p('local.input') ++ "/" ++ vars.fileName default ""]]></ee:set-variable>
+				<ee:set-variable variableName="destinationPath" ><![CDATA[%dw 2.0
+output application/java
+---
+trim(p('local.output')) ++ "/" default "" ++ vars.fileName]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<try doc:name="Try" doc:id="a4aa998a-8838-4604-ae49-001067feebb6">
+						<logger level="INFO" doc:name="Log Processing" doc:id="082497f7-dd73-49e7-89b1-693330c969c6" message="#[%dw 2.0 output application/java fun getCurrentDate() =  now() as String {format: &quot;dd/MM/yyyy hhss&quot; } --- 
+&quot;Processing the file&quot; ++ &quot; | &quot; ++ getCurrentDate() default ''  ++ &quot; | &quot; ++ ' fileName: '  ++ vars.fileName  default &quot;&quot;]"/>
+					<flow-ref doc:name="LINE File Processing" doc:id="fb440a56-2470-4c08-a5e0-3d2c822ba162" name="impl-comm-mgmt-prc-api:\transform-line-file:flow" />
+						<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="81083000-e933-4e94-ad9b-11de326fb087" >
+					<logger level="ERROR" doc:name="Log Error" doc:id="13cfbd21-3f6d-4c49-a18c-63c1f6817d0c" message="#[%dw 2.0 output application/java fun getCurrentDate() =  now() as String {format: &quot;dd/MM/yyyy hhss&quot; } --- 
+&quot;Error while processing the file&quot; ++ &quot; | &quot; ++ getCurrentDate() default '' ++ &quot; | &quot; ++   &quot;Failed&quot; ++ &quot; | &quot; ++   ((error.description default error.errorMessage) default error.cause)   ++ ' fileName: '  ++ vars.fileName  default &quot;&quot;]" category="${app.name}" />
+				</on-error-propagate>
+						</error-handler>
+					</try>
+<!-- 		<flow-ref doc:name="Move file to output Folder" doc:id="2117db6c-cbf2-41a9-84bb-ad7b4694cd51" name="sftp-mc-app:\move-file:sub"/> -->
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7d7979ab-1cf4-4d60-91c2-b525863aa1b1" type="ANY">
+				<logger level="ERROR" doc:name="Log Error" doc:id="54e2ca5f-3d82-4397-be2e-bfa8d7dfd0cc" message="#[%dw 2.0 output application/java fun getCurrentDate() =  now() as String {format: &quot;dd/MM/yyyy hhss&quot; } --- 
+&quot;Error while processing the file&quot; ++ &quot; | &quot; ++ getCurrentDate() default '' ++ &quot; | &quot; ++   &quot;Failed&quot; ++ &quot; | &quot; ++   ((error.description default error.errorMessage) default error.cause)   ++ ' fileName: '  ++ vars.fileName  default &quot;&quot;]" category="${app.name}" />
+			</on-error-propagate>
+		</error-handler>
+		</flow>
+	<sub-flow name="impl-comm-mgmt-prc-api:\transform-line-file:flow" doc:id="88894c70-5c35-493b-8abe-2f3927ce2efa" >
+		<logger level="INFO" doc:name="Start Of Line File Creation" doc:id="04ab7d72-492c-439b-8368-ac43850122c1" message="#[%dw 2.0 output application/java fun getCurrentDate() =  now() as String {format: &quot;dd/MM/yyyy hhss&quot; } --- 
+&quot;Start of file creation flow&quot; ++ &quot; | &quot; ++ getCurrentDate() default '' ++ &quot; | &quot; ++ ' filePath: '++ vars.filePath ++' fileName: ' ++ vars.fileName  default &quot;&quot;]" />
+		<flow-ref doc:name="Write File To Local" doc:id="63143624-893f-4bde-8467-130573f527d5" name="sftp-mc-app:\write-file:sub" />
+</sub-flow>
+</mule>
