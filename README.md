@@ -1,12 +1,12 @@
 # Mule4-read-transform-largefiles
 How to deal large files using Mule4 components, read, transform and write to a working directory
 
-This sample project demonstrate two solutions to consume large files, 
+This sample project demonstrate two solutions to consume large files:
 
-### Solution 1: Enabling streaming using repeatable streams
+#### Solution 1: Enabling streaming using repeatable streams
 This convenient streaming option available in Mule 4 allows storing temporary chunks of the stream on disk or in memory (see the Streaming in Mule Apps for more details regarding the strategies), so it can be accessed by multiple processors and optionally at the same time. This solution implements the file store strategy where small temporary files of 2 mb will be stored on disk.
 
-### Solution 2: Enabling streaming using MIME type 
+#### Solution 2: Enabling streaming using MIME type 
 For this option to work there are a few conditions:
 
 - The data producer (file listener in this case) needs to indicate the output is streaming=true in the media type
@@ -24,11 +24,12 @@ Is important to mention that the common transformation component defines two imp
 - the option deferred = true, which indicates that the output of this transformation is an output stream
 - the option indent = true, when dealing with large payloads it can reduce the file size dramatically.
 
-### About the file structure
+#### About the file structure
 
 The file is a relatively flat XML file with a few child elements, the file was obtained from the XML data repository and it contains hundreds of thousands of protein descriptions, including function, domain structure and other characterised variants. The XML structure looks like:
 
-`
+
+```
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
    <Entry>
@@ -50,7 +51,7 @@ The file is a relatively flat XML file with a few child elements, the file was o
        <!-- a lot of more of data elements here -->
    </Entry>
 </root>
-`
+```
 
 ## Running the flow
 
