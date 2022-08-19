@@ -1,4 +1,4 @@
-# Mule4-read-transform-largefiles
+# read-transform-largefiles
 How to deal large files using Mule4 components, read, transform and write to a working directory
 
 This sample project demonstrate two solutions to consume large files:
