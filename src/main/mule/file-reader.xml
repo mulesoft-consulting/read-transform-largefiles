@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="media-type-streaming-flow" doc:id="16275579-4773-4fda-a190-27c34321c700">
+		<file:listener doc:name="Read New or Updated File Using Media Type" doc:id="6153dca4-a5bf-4dc2-aaa5-deedbaaa557c"
+			config-ref="File_Config_local" directory="${local.input-mimetype}" recursive="false" autoDelete="true"
+			outputMimeType="application/xml; streaming=true; collectionpath=root">
+			<scheduling-strategy>
+				<fixed-frequency frequency="${local.reconnection.frequency}" />
+			</scheduling-strategy>
+			<file:matcher filenamePattern="${file.pattern}" />
+		</file:listener>
+		<flow-ref doc:name="impl-comm-mgmt-prc-api:\process-line-file:flow" doc:id="9b4672ac-250b-48e0-9fe1-24aa63270a27"
+			name="process-file" />
+	</flow>
+
+	<flow name="repeatable-streaming-flow" doc:id="b72c506e-068f-48f4-8b3e-6f5b4de9a3c1">
+		<file:listener doc:name="Read New or Updated File Using RepeatableStream" doc:id="165db05f-e75d-4e13-b286-ed6f8fcf95c1"
+			config-ref="File_Config_local" directory="${local.input-stream}" recursive="false" autoDelete="true" outputMimeType="application/xml">
+			<ee:repeatable-file-store-stream inMemorySize="4" bufferUnit="MB" />
+
+			<scheduling-strategy>
+				<fixed-frequency frequency="${local.reconnection.frequency}" />
+			</scheduling-strategy>
+			<file:matcher filenamePattern="${file.pattern}" />
+		</file:listener>
+		<flow-ref doc:name="impl-comm-mgmt-prc-api:\process-line-file:flow" doc:id="30d9c08c-52ac-403a-996a-35ff0a49b08b"
+			name="process-file" />
+	</flow>
+</mule>

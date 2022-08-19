@@ -1,23 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
-  <types:catalog>
-    <types:type name="a" format="java">
-      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
-type: string]]></types:shape>
-    </types:type>
-  </types:catalog>
-  <types:enrichment select="#e77dae3c-2a6c-4fe8-90ab-aec7b4c26ce7"/>
-  <types:enrichment select="#fc37f8de-ccc8-40a0-a222-5e14825a0878">
-    <types:processor-declaration>
-      <types:input-event>
-        <types:variables>
-          <types:variable name="controlMFolder" type="a"/>
-          <types:variable name="sourceFilePath" type="a"/>
-        </types:variables>
-      </types:input-event>
-    </types:processor-declaration>
-  </types:enrichment>
-  <types:enrichment select="#a7c5e7bb-c31e-40f3-b1f0-43196b1ae589"/>
-  <types:enrichment select="#cdfe3694-567a-4c95-bcdb-47c6d48bc5ea"/>
-  <types:enrichment select="#54c19813-b540-4da7-9652-9cf2e6adadcc"/>
+  <types:catalog/>
 </types:mule>
