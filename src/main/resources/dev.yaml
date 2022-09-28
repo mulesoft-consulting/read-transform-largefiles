@@ -2,7 +2,7 @@ file:
   pattern: "*.xml"
   
 local:
-  workingdir: "/Users/aacevedo/Documents/development/sources/tmp/"
+  workingdir: "{add-here-your-working-directory}"
   input-stream: "in-stream/"
   input-mimetype: "in-mimetype/"
   output: "out/"
